@@ -1,0 +1,7 @@
+target/
+.DS_Store
+
+# IntelliJ (proiectul se deschide acum din VS Code)
+.idea/
+*.iml
+

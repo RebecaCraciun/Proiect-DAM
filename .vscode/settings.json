@@ -1,0 +1,28 @@
+{
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-17",
+            "path": "/Library/Java/JavaVirtualMachines/jdk-17.0.5.jdk/Contents/Home",
+            "default": true
+        }
+    ],
+    "java.compile.nullAnalysis.mode": "disabled",
+    "maven.executable.path": "/Users/craciunbianca/.sdkman/candidates/maven/current/bin/mvn",
+    "maven.terminal.useJavaHome": true,
+    "code-runner.executorMap": {
+        "java": "cd $dir && cd \"$(git rev-parse --show-toplevel)\" && case $dir in *src/test*) mvn test -Dtest=$fileNameWithoutExt ;; *) mvn spring-boot:run ;; esac"
+    },
+    "code-runner.saveFileBeforeRun": true,
+    "code-runner.clearPreviousOutput": true,
+    "files.exclude": {
+        "**/.idea": true,
+        "**/*.iml": true,
+        "**/.DS_Store": true
+    },
+    "files.encoding": "utf8",
+    "editor.rulers": [120],
+    "[java]": {
+        "editor.tabSize": 4
+    }
+}

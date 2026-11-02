@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "SalaFitnessApplication (PostgreSQL)",
+            "request": "launch",
+            "mainClass": "ro.dam.salafitness.SalaFitnessApplication",
+            "projectName": "sala-fitness",
+            "env": {
+                "DB_HOST": "localhost",
+                "DB_PORT": "5432",
+                "DB_USER": "postgres",
+                "DB_PASSWORD": "postgres"
+            }
+        }
+    ]
+}
