@@ -6,6 +6,9 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.EntityListeners;
+import ro.dam.salafitness.domain.model.listener.AuditEntitateListener;
+import ro.dam.salafitness.domain.model.listener.Auditabil;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.Valid;
@@ -23,7 +26,8 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "produse")
-public class Produs {
+@EntityListeners(AuditEntitateListener.class)
+public class Produs implements Auditabil {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -109,6 +113,16 @@ public class Produs {
 
     public Integer getStocCurent() {
         return stocCurent;
+    }
+
+    @Override
+    public Object idAudit() {
+        return idProdus;
+    }
+
+    @Override
+    public String detaliiAudit() {
+        return denumire + ", pret " + pret + ", stoc " + stocCurent;
     }
 
     @Override

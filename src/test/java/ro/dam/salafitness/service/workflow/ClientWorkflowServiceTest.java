@@ -4,6 +4,9 @@ import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import ro.dam.salafitness.domain.factory.DateClientNou;
+import ro.dam.salafitness.domain.model.entity.AuditLog;
+import ro.dam.salafitness.domain.model.listener.AuditEntitateListener;
+import java.util.List;
 import ro.dam.salafitness.domain.model.entity.AbonamentClient;
 import ro.dam.salafitness.domain.model.entity.Client;
 import ro.dam.salafitness.domain.model.entity.FeedbackClient;
@@ -46,7 +49,10 @@ class ClientWorkflowServiceTest extends AbstractIntegrationTest {
         assertNotNull(client.getIdUtilizator());
         assertEquals("ana.popescu@mail.ro", client.getEmail().getAdresa());
         assertEquals("0722123456", client.getTelefon().getNumar());
-        assertEquals(1, auditService.istoricEntitate("Client", client.getIdUtilizator()).size());
+        // RB04: auditul de business + auditul din listener
+        List<AuditLog> istoric = auditService.istoricEntitate("Client", client.getIdUtilizator());
+        assertEquals(1, istoric.stream().filter(a -> a.getActiune().equals("INREGISTRARE")).count());
+        assertEquals(1, istoric.stream().filter(a -> a.getActiune().equals(AuditEntitateListener.CREARE)).count());
     }
 
     @Test

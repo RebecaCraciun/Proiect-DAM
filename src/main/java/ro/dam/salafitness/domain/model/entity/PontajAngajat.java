@@ -5,6 +5,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.EntityListeners;
+import ro.dam.salafitness.domain.model.listener.CampuriCalculateListener;
+import ro.dam.salafitness.domain.model.listener.CuCampuriCalculate;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -25,7 +28,8 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "pontaj_angajati")
-public class PontajAngajat {
+@EntityListeners(CampuriCalculateListener.class)
+public class PontajAngajat implements CuCampuriCalculate {
 
     private static final BigDecimal SECUNDE_PE_ORA = BigDecimal.valueOf(3600);
 
@@ -104,6 +108,12 @@ public class PontajAngajat {
 
     public BigDecimal getOreLucrate() {
         return oreLucrate;
+    }
+
+    // RC03
+    @Override
+    public void recalculeazaCampuriCalculate() {
+        recalculeazaOreLucrate();
     }
 
     @Override

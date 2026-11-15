@@ -3,6 +3,9 @@ package ro.dam.salafitness.domain.model.entity;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.EntityListeners;
+import ro.dam.salafitness.domain.model.listener.AuditEntitateListener;
+import ro.dam.salafitness.domain.model.listener.Auditabil;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,7 +25,8 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "plati")
-public class Plata {
+@EntityListeners(AuditEntitateListener.class)
+public class Plata implements Auditabil {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -89,6 +93,17 @@ public class Plata {
 
     public LocalDateTime getDataPlata() {
         return dataPlata;
+    }
+
+    @Override
+    public Object idAudit() {
+        return idPlata;
+    }
+
+    @Override
+    public String detaliiAudit() {
+        return suma + " " + (metodaPlata == null ? "" : metodaPlata.getValoare()) + ", client " + idClient
+                + ", angajat " + idAngajat;
     }
 
     @Override

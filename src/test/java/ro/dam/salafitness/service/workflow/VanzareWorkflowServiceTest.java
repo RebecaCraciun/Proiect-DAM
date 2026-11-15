@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import ro.dam.salafitness.domain.model.entity.LinieVanzare;
+import ro.dam.salafitness.domain.model.entity.AuditLog;
+import ro.dam.salafitness.domain.model.listener.AuditEntitateListener;
 import ro.dam.salafitness.domain.model.entity.Produs;
 import ro.dam.salafitness.domain.model.entity.Vanzare;
 import ro.dam.salafitness.domain.model.vo.Bani;
@@ -54,7 +56,11 @@ class VanzareWorkflowServiceTest extends AbstractIntegrationTest {
         assertEquals(Bani.of("313.30"), vanzare.getTotalPlata());                     // RC02
         assertEquals(8, proteina.getStocCurent());                                    // RC08
         assertEquals(47, apa.getStocCurent());
-        assertEquals(1, auditService.istoricEntitate("Vanzare", vanzare.getIdVanzare()).size()); // RB04
+        // RB04: auditul de business (cu actorul) + auditul din listener
+        List<AuditLog> istoric = auditService.istoricEntitate("Vanzare", vanzare.getIdVanzare());
+        assertEquals(1, istoric.stream().filter(a -> a.getActiune().equals("VANZARE")
+                && idReceptioner.equals(a.getIdUtilizator())).count());
+        assertEquals(1, istoric.stream().filter(a -> a.getActiune().equals(AuditEntitateListener.CREARE)).count());
     }
 
     @Test

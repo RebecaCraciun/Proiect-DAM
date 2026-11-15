@@ -3,6 +3,9 @@ package ro.dam.salafitness.domain.model.entity;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.EntityListeners;
+import ro.dam.salafitness.domain.model.listener.AuditEntitateListener;
+import ro.dam.salafitness.domain.model.listener.Auditabil;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -27,7 +30,8 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "salarii_istoric")
-public class SalariuIstoric {
+@EntityListeners(AuditEntitateListener.class)
+public class SalariuIstoric implements Auditabil {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -111,6 +115,16 @@ public class SalariuIstoric {
 
     public LocalDate getDataPlatii() {
         return dataPlatii;
+    }
+
+    @Override
+    public Object idAudit() {
+        return idPlata;
+    }
+
+    @Override
+    public String detaliiAudit() {
+        return sumaPlatita + " pentru " + lunaAn + ", " + (statusPlata == null ? "" : statusPlata.getValoare());
     }
 
     @Override
