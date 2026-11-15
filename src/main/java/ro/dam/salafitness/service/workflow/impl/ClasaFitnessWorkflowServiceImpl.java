@@ -10,7 +10,6 @@ import ro.dam.salafitness.domain.model.entity.RezervareClasa;
 import ro.dam.salafitness.domain.model.enums.RolAngajat;
 import ro.dam.salafitness.domain.model.vo.IntervalOrar;
 import ro.dam.salafitness.domain.repository.ClasaFitnessRepository;
-import ro.dam.salafitness.domain.repository.ProgramClasaRepository;
 import ro.dam.salafitness.service.audit.AuditService;
 import ro.dam.salafitness.service.computation.ViewComputationService;
 import ro.dam.salafitness.service.computation.view.OcupareClasaView;
@@ -26,7 +25,6 @@ import java.util.List;
 public class ClasaFitnessWorkflowServiceImpl implements ClasaFitnessWorkflowService {
 
     private final ClasaFitnessRepository clasaFitnessRepository;
-    private final ProgramClasaRepository programClasaRepository;
     private final ClasaFitnessFactory clasaFitnessFactory;
     private final DomainValidationService validationService;
     private final ViewComputationService viewComputationService;
@@ -34,13 +32,11 @@ public class ClasaFitnessWorkflowServiceImpl implements ClasaFitnessWorkflowServ
     private final Clock clock;
 
     public ClasaFitnessWorkflowServiceImpl(ClasaFitnessRepository clasaFitnessRepository,
-                                           ProgramClasaRepository programClasaRepository,
                                            ClasaFitnessFactory clasaFitnessFactory,
                                            DomainValidationService validationService,
                                            ViewComputationService viewComputationService, AuditService auditService,
                                            Clock clock) {
         this.clasaFitnessRepository = clasaFitnessRepository;
-        this.programClasaRepository = programClasaRepository;
         this.clasaFitnessFactory = clasaFitnessFactory;
         this.validationService = validationService;
         this.viewComputationService = viewComputationService;
@@ -88,7 +84,7 @@ public class ClasaFitnessWorkflowServiceImpl implements ClasaFitnessWorkflowServ
 
         RezervareClasa rezervare = sesiune.getClasa().rezerva(idProgram, idClient, LocalDateTime.now(clock));
         // radacina este deja gestionata: flush (nu merge) persista componenta noua prin cascada si ii da id-ul
-        programClasaRepository.flush();
+        clasaFitnessRepository.flush();
         return rezervare;
     }
 
@@ -105,7 +101,7 @@ public class ClasaFitnessWorkflowServiceImpl implements ClasaFitnessWorkflowServ
     }
 
     private ProgramClasa sesiunePentruModificare(Long idProgram) {
-        return programClasaRepository.findByIdPentruRezervare(idProgram)
+        return clasaFitnessRepository.findSesiunePentruRezervare(idProgram)
                 .orElseThrow(() -> new EntitateNegasitaException("ProgramClasa", idProgram));
     }
 }

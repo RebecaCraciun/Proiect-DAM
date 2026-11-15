@@ -9,12 +9,11 @@ import ro.dam.salafitness.domain.model.entity.PontajAngajat;
 import ro.dam.salafitness.domain.model.entity.ProgramClasa;
 import ro.dam.salafitness.domain.model.entity.TipAbonament;
 import ro.dam.salafitness.domain.model.entity.TipAngajat;
-import ro.dam.salafitness.domain.repository.AbonamentClientRepository;
+import ro.dam.salafitness.domain.repository.AngajatRepository;
+import ro.dam.salafitness.domain.repository.ClasaFitnessRepository;
+import ro.dam.salafitness.domain.repository.ClientRepository;
 import ro.dam.salafitness.domain.repository.EchipamentRepository;
-import ro.dam.salafitness.domain.repository.FeedbackClientRepository;
 import ro.dam.salafitness.domain.repository.PlataRepository;
-import ro.dam.salafitness.domain.repository.PontajAngajatRepository;
-import ro.dam.salafitness.domain.repository.ProgramClasaRepository;
 import ro.dam.salafitness.domain.repository.TipAbonamentRepository;
 import ro.dam.salafitness.domain.repository.TipAngajatRepository;
 import ro.dam.salafitness.domain.repository.VanzareRepository;
@@ -45,41 +44,38 @@ public class ViewComputationServiceImpl implements ViewComputationService {
 
     private static final BigDecimal O_SUTA = BigDecimal.valueOf(100);
 
-    private final AbonamentClientRepository abonamentClientRepository;
+    private final ClientRepository clientRepository;
     private final TipAbonamentRepository tipAbonamentRepository;
-    private final ProgramClasaRepository programClasaRepository;
+    private final ClasaFitnessRepository clasaFitnessRepository;
     private final PlataRepository plataRepository;
     private final VanzareRepository vanzareRepository;
-    private final PontajAngajatRepository pontajAngajatRepository;
+    private final AngajatRepository angajatRepository;
     private final TipAngajatRepository tipAngajatRepository;
     private final EchipamentRepository echipamentRepository;
-    private final FeedbackClientRepository feedbackClientRepository;
 
-    public ViewComputationServiceImpl(AbonamentClientRepository abonamentClientRepository,
+    public ViewComputationServiceImpl(ClientRepository clientRepository,
                                       TipAbonamentRepository tipAbonamentRepository,
-                                      ProgramClasaRepository programClasaRepository,
+                                      ClasaFitnessRepository clasaFitnessRepository,
                                       PlataRepository plataRepository,
                                       VanzareRepository vanzareRepository,
-                                      PontajAngajatRepository pontajAngajatRepository,
+                                      AngajatRepository angajatRepository,
                                       TipAngajatRepository tipAngajatRepository,
-                                      EchipamentRepository echipamentRepository,
-                                      FeedbackClientRepository feedbackClientRepository) {
-        this.abonamentClientRepository = abonamentClientRepository;
+                                      EchipamentRepository echipamentRepository) {
+        this.clientRepository = clientRepository;
         this.tipAbonamentRepository = tipAbonamentRepository;
-        this.programClasaRepository = programClasaRepository;
+        this.clasaFitnessRepository = clasaFitnessRepository;
         this.plataRepository = plataRepository;
         this.vanzareRepository = vanzareRepository;
-        this.pontajAngajatRepository = pontajAngajatRepository;
+        this.angajatRepository = angajatRepository;
         this.tipAngajatRepository = tipAngajatRepository;
         this.echipamentRepository = echipamentRepository;
-        this.feedbackClientRepository = feedbackClientRepository;
     }
 
     @Override
     public List<AbonamentActivView> abonamenteActive(LocalDate data) {
         Map<Integer, String> tipuri = tipAbonamentRepository.findAll().stream()
                 .collect(Collectors.toMap(TipAbonament::getIdTipAbonament, TipAbonament::getDenumire));
-        return abonamentClientRepository.findValabileLa(data).stream()
+        return clientRepository.findAbonamenteValabileLa(data).stream()
                 .map(a -> new AbonamentActivView(
                         a.getIdAbonamentClient(),
                         a.getClient().getIdUtilizator(),
@@ -94,12 +90,12 @@ public class ViewComputationServiceImpl implements ViewComputationService {
 
     @Override
     public List<OcupareClasaView> ocupareClase() {
-        return programClasaRepository.findAll().stream().map(this::ocupare).toList();
+        return clasaFitnessRepository.findToateSesiunile().stream().map(this::ocupare).toList();
     }
 
     @Override
     public List<OcupareClasaView> ocupareClase(LocalDateTime de, LocalDateTime pana) {
-        return programClasaRepository.findInPerioada(de, pana).stream().map(this::ocupare).toList();
+        return clasaFitnessRepository.findSesiuniInPerioada(de, pana).stream().map(this::ocupare).toList();
     }
 
     private OcupareClasaView ocupare(ProgramClasa p) {
@@ -130,7 +126,7 @@ public class ViewComputationServiceImpl implements ViewComputationService {
     }
 
     private static <T> Map<YearMonth, BigDecimal> sumaPeLuna(List<T> elemente, Function<T, YearMonth> luna,
-                                                            Function<T, BigDecimal> suma) {
+                                                             Function<T, BigDecimal> suma) {
         return elemente.stream().collect(Collectors.groupingBy(luna, TreeMap::new,
                 Collectors.reducing(BigDecimal.ZERO, suma, BigDecimal::add)));
     }
@@ -142,7 +138,7 @@ public class ViewComputationServiceImpl implements ViewComputationService {
 
         record Cheie(Angajat angajat, YearMonth luna) {
         }
-        Map<Cheie, List<PontajAngajat>> grupe = pontajAngajatRepository.findByCheckOutIsNotNull().stream()
+        Map<Cheie, List<PontajAngajat>> grupe = angajatRepository.findPontajeInchise().stream()
                 .collect(Collectors.groupingBy(p -> new Cheie(p.getAngajat(), YearMonth.from(p.getCheckIn()))));
 
         return grupe.entrySet().stream()
@@ -173,7 +169,7 @@ public class ViewComputationServiceImpl implements ViewComputationService {
 
     @Override
     public List<FeedbackLunarView> feedbackLunar() {
-        Map<YearMonth, List<FeedbackClient>> peLuna = feedbackClientRepository.findAll().stream()
+        Map<YearMonth, List<FeedbackClient>> peLuna = clientRepository.findToateFeedbackurile().stream()
                 .collect(Collectors.groupingBy(f -> YearMonth.from(f.getDataFeedback()), TreeMap::new, Collectors.toList()));
         return peLuna.entrySet().stream()
                 .map(e -> {

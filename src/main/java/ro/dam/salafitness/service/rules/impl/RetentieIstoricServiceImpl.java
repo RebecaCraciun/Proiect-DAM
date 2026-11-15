@@ -7,16 +7,13 @@ import ro.dam.salafitness.domain.exception.EntitateNegasitaException;
 import ro.dam.salafitness.domain.model.entity.Angajat;
 import ro.dam.salafitness.domain.model.entity.Client;
 import ro.dam.salafitness.domain.model.enums.RolAngajat;
-import ro.dam.salafitness.domain.repository.AbonamentClientRepository;
 import ro.dam.salafitness.domain.repository.AccesSalaRepository;
 import ro.dam.salafitness.domain.repository.AngajatRepository;
 import ro.dam.salafitness.domain.repository.ClasaFitnessRepository;
 import ro.dam.salafitness.domain.repository.ClientRepository;
-import ro.dam.salafitness.domain.repository.LinieVanzareRepository;
-import ro.dam.salafitness.domain.repository.MentenantaEchipamentRepository;
+import ro.dam.salafitness.domain.repository.EchipamentRepository;
 import ro.dam.salafitness.domain.repository.PlataRepository;
 import ro.dam.salafitness.domain.repository.ProdusRepository;
-import ro.dam.salafitness.domain.repository.RezervareClasaRepository;
 import ro.dam.salafitness.domain.repository.SedintaPTRepository;
 import ro.dam.salafitness.domain.repository.TipAbonamentRepository;
 import ro.dam.salafitness.domain.repository.VanzareRepository;
@@ -35,41 +32,32 @@ public class RetentieIstoricServiceImpl implements RetentieIstoricService {
     private final AngajatRepository angajatRepository;
     private final ProdusRepository produsRepository;
     private final TipAbonamentRepository tipAbonamentRepository;
-    private final AbonamentClientRepository abonamentClientRepository;
     private final PlataRepository plataRepository;
     private final VanzareRepository vanzareRepository;
-    private final LinieVanzareRepository linieVanzareRepository;
-    private final RezervareClasaRepository rezervareClasaRepository;
     private final SedintaPTRepository sedintaPTRepository;
     private final AccesSalaRepository accesSalaRepository;
     private final ClasaFitnessRepository clasaFitnessRepository;
-    private final MentenantaEchipamentRepository mentenantaRepository;
+    private final EchipamentRepository echipamentRepository;
     private final DomainValidationService validationService;
     private final AuditService auditService;
 
     public RetentieIstoricServiceImpl(ClientRepository clientRepository, AngajatRepository angajatRepository,
                                       ProdusRepository produsRepository, TipAbonamentRepository tipAbonamentRepository,
-                                      AbonamentClientRepository abonamentClientRepository,
                                       PlataRepository plataRepository, VanzareRepository vanzareRepository,
-                                      LinieVanzareRepository linieVanzareRepository,
-                                      RezervareClasaRepository rezervareClasaRepository,
                                       SedintaPTRepository sedintaPTRepository, AccesSalaRepository accesSalaRepository,
                                       ClasaFitnessRepository clasaFitnessRepository,
-                                      MentenantaEchipamentRepository mentenantaRepository,
+                                      EchipamentRepository echipamentRepository,
                                       DomainValidationService validationService, AuditService auditService) {
         this.clientRepository = clientRepository;
         this.angajatRepository = angajatRepository;
         this.produsRepository = produsRepository;
         this.tipAbonamentRepository = tipAbonamentRepository;
-        this.abonamentClientRepository = abonamentClientRepository;
         this.plataRepository = plataRepository;
         this.vanzareRepository = vanzareRepository;
-        this.linieVanzareRepository = linieVanzareRepository;
-        this.rezervareClasaRepository = rezervareClasaRepository;
         this.sedintaPTRepository = sedintaPTRepository;
         this.accesSalaRepository = accesSalaRepository;
         this.clasaFitnessRepository = clasaFitnessRepository;
-        this.mentenantaRepository = mentenantaRepository;
+        this.echipamentRepository = echipamentRepository;
         this.validationService = validationService;
         this.auditService = auditService;
     }
@@ -84,7 +72,7 @@ public class RetentieIstoricServiceImpl implements RetentieIstoricService {
         if (!client.getAbonamente().isEmpty()) referinte.add("abonamente");
         if (plataRepository.existsByIdClient(idClient)) referinte.add("plati");
         if (vanzareRepository.existsByIdClient(idClient)) referinte.add("vanzari");
-        if (rezervareClasaRepository.existsByIdClient(idClient)) referinte.add("rezervari");
+        if (clasaFitnessRepository.existaRezervareClient(idClient)) referinte.add("rezervari");
         if (sedintaPTRepository.existsByIdClient(idClient)) referinte.add("sedinte PT");
         if (accesSalaRepository.existsByIdUtilizator(idClient)) referinte.add("accese in sala");
         refuzaDacaExistaIstoric("Clientul " + client.getNumeComplet(), referinte);
@@ -106,7 +94,7 @@ public class RetentieIstoricServiceImpl implements RetentieIstoricService {
         if (vanzareRepository.existsByIdAngajat(idAngajat)) referinte.add("vanzari");
         if (clasaFitnessRepository.existsByIdAntrenor(idAngajat)) referinte.add("clase");
         if (sedintaPTRepository.existsByIdAntrenor(idAngajat)) referinte.add("sedinte PT");
-        if (mentenantaRepository.existsByIdAngajatResponsabil(idAngajat)) referinte.add("interventii de mentenanta");
+        if (echipamentRepository.existaInterventieCuResponsabil(idAngajat)) referinte.add("interventii de mentenanta");
         if (accesSalaRepository.existsByIdUtilizator(idAngajat)) referinte.add("accese in sala");
         refuzaDacaExistaIstoric("Angajatul " + angajat.getNumeComplet(), referinte);
 
@@ -120,7 +108,7 @@ public class RetentieIstoricServiceImpl implements RetentieIstoricService {
         if (!produsRepository.existsById(idProdus)) {
             throw new EntitateNegasitaException("Produs", idProdus);
         }
-        if (linieVanzareRepository.existsByIdProdus(idProdus)) {
+        if (vanzareRepository.existaLinieCuProdus(idProdus)) {
             refuzaDacaExistaIstoric("Produsul " + idProdus, List.of("linii de vanzare"));
         }
         produsRepository.deleteById(idProdus);
@@ -133,7 +121,7 @@ public class RetentieIstoricServiceImpl implements RetentieIstoricService {
         if (!tipAbonamentRepository.existsById(idTipAbonament)) {
             throw new EntitateNegasitaException("TipAbonament", idTipAbonament);
         }
-        if (abonamentClientRepository.existsByIdTipAbonament(idTipAbonament)) {
+        if (clientRepository.existaAbonamentDeTip(idTipAbonament)) {
             refuzaDacaExistaIstoric("Tipul de abonament " + idTipAbonament, List.of("abonamente cumparate"));
         }
         tipAbonamentRepository.deleteById(idTipAbonament);
