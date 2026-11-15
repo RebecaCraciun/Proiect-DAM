@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Convert;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import ro.dam.salafitness.domain.model.enums.MetodaPlata;
@@ -46,6 +47,7 @@ public class Plata {
 
     /** RV13 */
     @NotNull(message = "Metoda de plata este obligatorie")
+    @Convert(converter = MetodaPlata.Converter.class)
     @Column(name = "metoda_plata", nullable = false, length = 20)
     private MetodaPlata metodaPlata;
 

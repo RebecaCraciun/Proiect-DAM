@@ -8,6 +8,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Convert;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -52,6 +53,7 @@ public class SalariuIstoric {
 
     /** RV12 */
     @NotNull
+    @Convert(converter = StatusPlataSalariu.Converter.class)
     @Column(name = "status_plata", nullable = false, length = 20)
     private StatusPlataSalariu statusPlata = StatusPlataSalariu.IN_ASTEPTARE;
 

@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Convert;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -41,6 +42,7 @@ public class RezervareClasa {
 
     /** RV16 */
     @NotNull
+    @Convert(converter = StatusRezervare.Converter.class)
     @Column(name = "status", nullable = false, length = 20)
     private StatusRezervare status = StatusRezervare.CONFIRMAT;
 

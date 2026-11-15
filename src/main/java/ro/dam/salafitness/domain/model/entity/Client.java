@@ -9,6 +9,7 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.validation.Valid;
+import jakarta.persistence.FetchType;
 import jakarta.validation.constraints.Size;
 import ro.dam.salafitness.domain.exception.BusinessRuleException;
 import ro.dam.salafitness.domain.model.vo.ContactUrgenta;
@@ -46,12 +47,13 @@ public class Client extends Utilizator {
     @Embedded
     private ContactUrgenta contactUrgenta;
 
-    @OneToMany(mappedBy = "client", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    // RB01: istoricul nu se sterge
+    @OneToMany(mappedBy = "client", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @OrderBy("perioada.dataInceput ASC")
     private List<AbonamentClient> abonamente = new ArrayList<>();
 
     /** RB02: stergerea clientului ii sterge recenziile */
-    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<FeedbackClient> feedbackuri = new ArrayList<>();
 
     protected Client() {

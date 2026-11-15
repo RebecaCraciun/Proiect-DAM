@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Convert;
 import ro.dam.salafitness.domain.model.enums.StatusAbonament;
 import ro.dam.salafitness.domain.model.vo.PerioadaValabilitate;
 
@@ -47,6 +48,7 @@ public class AbonamentClient {
 
     /** RV10 */
     @NotNull
+    @Convert(converter = StatusAbonament.Converter.class)
     @Column(name = "status", nullable = false, length = 20)
     private StatusAbonament status;
 
