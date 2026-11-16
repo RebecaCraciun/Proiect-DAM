@@ -2,58 +2,36 @@ package ro.dam.salafitness.service.computation.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ro.dam.salafitness.domain.exception.BusinessRuleException;
 import ro.dam.salafitness.domain.model.entity.AbonamentClient;
-import ro.dam.salafitness.domain.model.entity.Angajat;
 import ro.dam.salafitness.domain.model.entity.Client;
-import ro.dam.salafitness.domain.model.entity.LinieVanzare;
-import ro.dam.salafitness.domain.model.entity.PontajAngajat;
-import ro.dam.salafitness.domain.model.entity.Produs;
-import ro.dam.salafitness.domain.model.entity.ProgramClasa;
 import ro.dam.salafitness.domain.model.entity.TipAbonament;
-import ro.dam.salafitness.domain.model.entity.Vanzare;
 import ro.dam.salafitness.domain.model.enums.StatusAbonament;
 import ro.dam.salafitness.domain.model.vo.Bani;
 import ro.dam.salafitness.domain.model.vo.PerioadaValabilitate;
 import ro.dam.salafitness.domain.repository.ClientRepository;
 import ro.dam.salafitness.domain.repository.TipAbonamentRepository;
-import ro.dam.salafitness.service.computation.FieldComputationService;
+import ro.dam.salafitness.service.computation.AbonamenteComputationService;
+import ro.dam.salafitness.service.computation.view.AbonamentActivView;
 
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-/**
- * Formulele sunt incapsulate in entitati si value objects (model bogat); serviciul le aplica pe entitati
- * si ofera punctul unic de acces la regulile de calcul pentru serviciile de workflow.
- */
 @Service
-public class FieldComputationServiceImpl implements FieldComputationService {
+public class AbonamenteComputationServiceImpl implements AbonamenteComputationService {
 
     private final ClientRepository clientRepository;
     private final TipAbonamentRepository tipAbonamentRepository;
     private final Clock clock;
 
-    public FieldComputationServiceImpl(ClientRepository clientRepository,
-                                       TipAbonamentRepository tipAbonamentRepository, Clock clock) {
+    public AbonamenteComputationServiceImpl(ClientRepository clientRepository,
+                                            TipAbonamentRepository tipAbonamentRepository, Clock clock) {
         this.clientRepository = clientRepository;
         this.tipAbonamentRepository = tipAbonamentRepository;
         this.clock = clock;
-    }
-
-    @Override
-    public Bani calculeazaTotalLinie(LinieVanzare linie) {
-        return linie.recalculeazaTotal();
-    }
-
-    @Override
-    public Bani calculeazaTotalVanzare(Vanzare vanzare) {
-        return vanzare.calculeazaTotal();
-    }
-
-    @Override
-    public BigDecimal calculeazaOreLucrate(PontajAngajat pontaj) {
-        return pontaj.recalculeazaOreLucrate();
     }
 
     @Override
@@ -87,25 +65,6 @@ public class FieldComputationServiceImpl implements FieldComputationService {
     }
 
     @Override
-    public Bani calculeazaPretUnitar(Produs produs) {
-        return produs.getPret();
-    }
-
-    @Override
-    public int calculeazaStocRamas(Produs produs, int cantitateVanduta) {
-        int ramas = produs.getStocCurent() - cantitateVanduta;
-        if (ramas < 0) {
-            throw new BusinessRuleException("RA14", "Stoc insuficient pentru " + produs.getDenumire());
-        }
-        return ramas;
-    }
-
-    @Override
-    public int calculeazaLocuriLibere(ProgramClasa sesiune) {
-        return sesiune.locuriDisponibile();
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public String calculeazaTipAbonamentClient(Client client) {
         String denumire = client.ultimulAbonament()
@@ -117,7 +76,20 @@ public class FieldComputationServiceImpl implements FieldComputationService {
     }
 
     @Override
-    public Bani calculeazaSumaSalariu(Angajat angajat) {
-        return angajat.getSalariu();
+    @Transactional(readOnly = true)
+    public List<AbonamentActivView> abonamenteActive(LocalDate data) {
+        Map<Integer, String> tipuri = tipAbonamentRepository.findAll().stream()
+                .collect(Collectors.toMap(TipAbonament::getIdTipAbonament, TipAbonament::getDenumire));
+        return clientRepository.findAbonamenteValabileLa(data).stream()
+                .map(a -> new AbonamentActivView(
+                        a.getIdAbonamentClient(),
+                        a.getClient().getIdUtilizator(),
+                        a.getClient().getNumeComplet(),
+                        tipuri.get(a.getIdTipAbonament()),
+                        a.getPerioada().getDataInceput(),
+                        a.getPerioada().getDataSfarsit(),
+                        a.getPerioada().zileRamase(data)))
+                .sorted(Comparator.comparing(AbonamentActivView::zileRamase))
+                .toList();
     }
 }

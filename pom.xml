@@ -14,11 +14,19 @@
     <groupId>ro.dam</groupId>
     <artifactId>sala-fitness</artifactId>
     <version>0.3.0-SNAPSHOT</version>
+
+    <packaging>jar</packaging>
     <name>sala-fitness</name>
     <description>Sistem de Management al Salii de Fitness - Sprint 3: Persistence Model &amp; Repositories</description>
 
     <properties>
         <java.version>17</java.version>
+        <maven-surefire-plugin>3.2.5</maven-surefire-plugin>
+
+        <!-- maven-compiler-plugin -->
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.plugin>3.13.0</maven.compiler.plugin>
     </properties>
 
     <dependencies>
@@ -56,6 +64,25 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin}</version>
+                <configuration>
+                    <skip>false</skip>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

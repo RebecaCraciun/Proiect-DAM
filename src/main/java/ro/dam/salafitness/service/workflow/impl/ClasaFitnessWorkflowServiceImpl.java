@@ -11,7 +11,7 @@ import ro.dam.salafitness.domain.model.enums.RolAngajat;
 import ro.dam.salafitness.domain.model.vo.IntervalOrar;
 import ro.dam.salafitness.domain.repository.ClasaFitnessRepository;
 import ro.dam.salafitness.service.audit.AuditService;
-import ro.dam.salafitness.service.computation.ViewComputationService;
+import ro.dam.salafitness.service.computation.ClaseComputationService;
 import ro.dam.salafitness.service.computation.view.OcupareClasaView;
 import ro.dam.salafitness.service.validation.DomainValidationService;
 import ro.dam.salafitness.service.workflow.ClasaFitnessWorkflowService;
@@ -27,19 +27,19 @@ public class ClasaFitnessWorkflowServiceImpl implements ClasaFitnessWorkflowServ
     private final ClasaFitnessRepository clasaFitnessRepository;
     private final ClasaFitnessFactory clasaFitnessFactory;
     private final DomainValidationService validationService;
-    private final ViewComputationService viewComputationService;
+    private final ClaseComputationService claseComputationService;
     private final AuditService auditService;
     private final Clock clock;
 
     public ClasaFitnessWorkflowServiceImpl(ClasaFitnessRepository clasaFitnessRepository,
                                            ClasaFitnessFactory clasaFitnessFactory,
                                            DomainValidationService validationService,
-                                           ViewComputationService viewComputationService, AuditService auditService,
+                                           ClaseComputationService claseComputationService, AuditService auditService,
                                            Clock clock) {
         this.clasaFitnessRepository = clasaFitnessRepository;
         this.clasaFitnessFactory = clasaFitnessFactory;
         this.validationService = validationService;
-        this.viewComputationService = viewComputationService;
+        this.claseComputationService = claseComputationService;
         this.auditService = auditService;
         this.clock = clock;
     }
@@ -73,7 +73,7 @@ public class ClasaFitnessWorkflowServiceImpl implements ClasaFitnessWorkflowServ
     @Override
     @Transactional(readOnly = true)
     public List<OcupareClasaView> programClase(LocalDateTime de, LocalDateTime pana) {
-        return viewComputationService.ocupareClase(de, pana);
+        return claseComputationService.ocupareClase(de, pana);
     }
 
     @Override
