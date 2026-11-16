@@ -16,7 +16,7 @@ import ro.dam.salafitness.domain.repository.ClientRepository;
 import ro.dam.salafitness.domain.repository.PlataRepository;
 import ro.dam.salafitness.domain.repository.TipAbonamentRepository;
 import ro.dam.salafitness.service.audit.AuditService;
-import ro.dam.salafitness.service.computation.FieldComputationService;
+import ro.dam.salafitness.service.computation.AbonamenteComputationService;
 import ro.dam.salafitness.service.validation.DomainValidationService;
 import ro.dam.salafitness.service.workflow.ClientWorkflowService;
 
@@ -33,21 +33,21 @@ public class ClientWorkflowServiceImpl implements ClientWorkflowService {
     private final PlataRepository plataRepository;
     private final ClientFactory clientFactory;
     private final DomainValidationService validationService;
-    private final FieldComputationService computationService;
+    private final AbonamenteComputationService abonamenteComputationService;
     private final AuditService auditService;
     private final Clock clock;
 
     public ClientWorkflowServiceImpl(ClientRepository clientRepository, TipAbonamentRepository tipAbonamentRepository,
                                      PlataRepository plataRepository, ClientFactory clientFactory,
                                      DomainValidationService validationService,
-                                     FieldComputationService computationService, AuditService auditService,
+                                     AbonamenteComputationService abonamenteComputationService, AuditService auditService,
                                      Clock clock) {
         this.clientRepository = clientRepository;
         this.tipAbonamentRepository = tipAbonamentRepository;
         this.plataRepository = plataRepository;
         this.clientFactory = clientFactory;
         this.validationService = validationService;
-        this.computationService = computationService;
+        this.abonamenteComputationService = abonamenteComputationService;
         this.auditService = auditService;
         this.clock = clock;
     }
@@ -73,7 +73,7 @@ public class ClientWorkflowServiceImpl implements ClientWorkflowService {
 
         // UC03 5a: plata invalida opreste achizitia inainte de a crea abonamentul (RV13, RC06)
         Plata plata = validationService.valideaza(new Plata(idClient, idReceptioner,
-                computationService.calculeazaSumaPlataAbonament(tip), metodaPlata, acum));
+                abonamenteComputationService.calculeazaSumaPlataAbonament(tip), metodaPlata, acum));
         // RA05, RA06, RC04, RC05, RC10 - invariantii agregatului Client
         AbonamentClient abonament = client.cumparaAbonament(tip, acum.toLocalDate());
 

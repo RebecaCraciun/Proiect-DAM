@@ -1,34 +1,20 @@
 package ro.dam.salafitness.service.computation;
 
-import ro.dam.salafitness.domain.model.entity.Angajat;
 import ro.dam.salafitness.domain.model.entity.AbonamentClient;
 import ro.dam.salafitness.domain.model.entity.Client;
-import ro.dam.salafitness.domain.model.entity.LinieVanzare;
-import ro.dam.salafitness.domain.model.entity.PontajAngajat;
-import ro.dam.salafitness.domain.model.entity.Produs;
-import ro.dam.salafitness.domain.model.entity.ProgramClasa;
 import ro.dam.salafitness.domain.model.entity.TipAbonament;
-import ro.dam.salafitness.domain.model.entity.Vanzare;
 import ro.dam.salafitness.domain.model.enums.StatusAbonament;
 import ro.dam.salafitness.domain.model.vo.Bani;
 import ro.dam.salafitness.domain.model.vo.PerioadaValabilitate;
+import ro.dam.salafitness.service.computation.view.AbonamentActivView;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
- * Reguli de calcul pentru campurile entitatilor (README 3.3, RC01-RC11).
+ * Reguli de calcul pentru abonamente (RC04, RC05, RC06, RC10, V1).
  */
-public interface FieldComputationService {
-
-    /** RC01: total_linie = cantitate x pret_unitar */
-    Bani calculeazaTotalLinie(LinieVanzare linie);
-
-    /** RC02: total_plata = suma total_linie */
-    Bani calculeazaTotalVanzare(Vanzare vanzare);
-
-    /** RC03: (check_out - check_in) in ore, 2 zecimale; null pentru un pontaj deschis */
-    BigDecimal calculeazaOreLucrate(PontajAngajat pontaj);
+public interface AbonamenteComputationService {
 
     /** UC03 pas 3: data curenta sau ziua de dupa expirarea abonamentului activ */
     LocalDate calculeazaDataInceputAbonament(Client client, LocalDate azi);
@@ -45,18 +31,9 @@ public interface FieldComputationService {
     /** RC06: suma platii = pretul tipului de abonament la momentul achizitiei */
     Bani calculeazaSumaPlataAbonament(TipAbonament tip);
 
-    /** RC07: pret_unitar = pretul curent al produsului (snapshot) */
-    Bani calculeazaPretUnitar(Produs produs);
-
-    /** RC08: stocul ramas dupa vanzarea cantitatii */
-    int calculeazaStocRamas(Produs produs, int cantitateVanduta);
-
-    /** RC09: capacitate_maxima - nr. rezervari neanulate */
-    int calculeazaLocuriLibere(ProgramClasa sesiune);
-
     /** RC10: denumirea tipului ultimului abonament cumparat (actualizeaza clientul) */
     String calculeazaTipAbonamentClient(Client client);
 
-    /** RC11: suma salariala = salariul lunar valabil acum */
-    Bani calculeazaSumaSalariu(Angajat angajat);
+    /** V1 */
+    List<AbonamentActivView> abonamenteActive(LocalDate data);
 }
