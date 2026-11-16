@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -56,7 +57,8 @@ public class ClasaFitness {
     @Column(name = "descriere", length = 2000)
     private String descriere;
 
-    @OneToMany(mappedBy = "clasa", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    // RB01: istoricul nu se sterge
+    @OneToMany(mappedBy = "clasa", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     private List<ProgramClasa> sesiuni = new ArrayList<>();
 
     protected ClasaFitness() {

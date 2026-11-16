@@ -3,11 +3,15 @@ package ro.dam.salafitness.domain.model.entity;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.EntityListeners;
+import ro.dam.salafitness.domain.model.listener.AuditEntitateListener;
+import ro.dam.salafitness.domain.model.listener.Auditabil;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Convert;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import ro.dam.salafitness.domain.model.enums.MetodaPlata;
@@ -21,7 +25,8 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "plati")
-public class Plata {
+@EntityListeners(AuditEntitateListener.class)
+public class Plata implements Auditabil {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,6 +51,7 @@ public class Plata {
 
     /** RV13 */
     @NotNull(message = "Metoda de plata este obligatorie")
+    @Convert(converter = MetodaPlata.Converter.class)
     @Column(name = "metoda_plata", nullable = false, length = 20)
     private MetodaPlata metodaPlata;
 
@@ -87,6 +93,17 @@ public class Plata {
 
     public LocalDateTime getDataPlata() {
         return dataPlata;
+    }
+
+    @Override
+    public Object idAudit() {
+        return idPlata;
+    }
+
+    @Override
+    public String detaliiAudit() {
+        return suma + " " + (metodaPlata == null ? "" : metodaPlata.getValoare()) + ", client " + idClient
+                + ", angajat " + idAngajat;
     }
 
     @Override

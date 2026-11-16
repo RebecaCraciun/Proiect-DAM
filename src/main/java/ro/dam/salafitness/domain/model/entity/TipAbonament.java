@@ -7,6 +7,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.EntityListeners;
+import ro.dam.salafitness.domain.model.listener.AuditEntitateListener;
+import ro.dam.salafitness.domain.model.listener.Auditabil;
 import jakarta.persistence.Table;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -22,7 +25,8 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "tipuri_abonament")
-public class TipAbonament {
+@EntityListeners(AuditEntitateListener.class)
+public class TipAbonament implements Auditabil {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -81,6 +85,16 @@ public class TipAbonament {
 
     public Bani getPret() {
         return pret;
+    }
+
+    @Override
+    public Object idAudit() {
+        return idTipAbonament;
+    }
+
+    @Override
+    public String detaliiAudit() {
+        return denumire + ", " + durataZile + " zile, " + pret;
     }
 
     @Override

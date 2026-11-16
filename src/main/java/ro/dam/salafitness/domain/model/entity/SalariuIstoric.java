@@ -3,11 +3,15 @@ package ro.dam.salafitness.domain.model.entity;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.EntityListeners;
+import ro.dam.salafitness.domain.model.listener.AuditEntitateListener;
+import ro.dam.salafitness.domain.model.listener.Auditabil;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Convert;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -26,7 +30,8 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "salarii_istoric")
-public class SalariuIstoric {
+@EntityListeners(AuditEntitateListener.class)
+public class SalariuIstoric implements Auditabil {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,6 +57,7 @@ public class SalariuIstoric {
 
     /** RV12 */
     @NotNull
+    @Convert(converter = StatusPlataSalariu.Converter.class)
     @Column(name = "status_plata", nullable = false, length = 20)
     private StatusPlataSalariu statusPlata = StatusPlataSalariu.IN_ASTEPTARE;
 
@@ -109,6 +115,16 @@ public class SalariuIstoric {
 
     public LocalDate getDataPlatii() {
         return dataPlatii;
+    }
+
+    @Override
+    public Object idAudit() {
+        return idPlata;
+    }
+
+    @Override
+    public String detaliiAudit() {
+        return sumaPlatita + " pentru " + lunaAn + ", " + (statusPlata == null ? "" : statusPlata.getValoare());
     }
 
     @Override

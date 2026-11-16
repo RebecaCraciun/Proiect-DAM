@@ -7,6 +7,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.EntityListeners;
+import ro.dam.salafitness.domain.model.listener.CampuriCalculateListener;
+import ro.dam.salafitness.domain.model.listener.CuCampuriCalculate;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -23,7 +26,8 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "linie_vanzare")
-public class LinieVanzare {
+@EntityListeners(CampuriCalculateListener.class)
+public class LinieVanzare implements CuCampuriCalculate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -104,6 +108,12 @@ public class LinieVanzare {
 
     public Bani getTotalLinie() {
         return totalLinie;
+    }
+
+    // RC01
+    @Override
+    public void recalculeazaCampuriCalculate() {
+        recalculeazaTotal();
     }
 
     @Override

@@ -57,7 +57,8 @@ public class ProgramClasa {
     @Column(name = "sala_studio", nullable = false, length = 50)
     private String salaStudio;
 
-    @OneToMany(mappedBy = "program", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    // RB01: istoricul nu se sterge
+    @OneToMany(mappedBy = "program", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     private List<RezervareClasa> rezervari = new ArrayList<>();
 
     protected ProgramClasa() {

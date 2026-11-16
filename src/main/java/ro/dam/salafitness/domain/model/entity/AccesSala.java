@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Convert;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import ro.dam.salafitness.domain.exception.BusinessRuleException;
@@ -39,6 +40,7 @@ public class AccesSala {
 
     /** RV18 / RA07 */
     @NotNull
+    @Convert(converter = StatusAcces.Converter.class)
     @Column(name = "status_acces", nullable = false, length = 20)
     private StatusAcces statusAcces;
 

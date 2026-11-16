@@ -6,9 +6,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.EntityListeners;
+import ro.dam.salafitness.domain.model.listener.AuditEntitateListener;
+import ro.dam.salafitness.domain.model.listener.Auditabil;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.validation.Valid;
+import jakarta.persistence.FetchType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -34,7 +38,8 @@ import java.util.Optional;
 @Entity
 @Table(name = "angajat")
 @PrimaryKeyJoinColumn(name = "id_utilizator")
-public class Angajat extends Utilizator {
+@EntityListeners(AuditEntitateListener.class)
+public class Angajat extends Utilizator implements Auditabil {
 
     /** RV06; tipul de angajat (nomenclator) este referit prin id */
     @NotNull(message = "Tipul de angajat este obligatoriu")
@@ -63,10 +68,12 @@ public class Angajat extends Utilizator {
     @Column(name = "program_lucru", length = 100)
     private String programLucru;
 
-    @OneToMany(mappedBy = "angajat", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    // RB01: istoricul nu se sterge
+    @OneToMany(mappedBy = "angajat", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     private List<PontajAngajat> pontaje = new ArrayList<>();
 
-    @OneToMany(mappedBy = "angajat", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    // RB01: istoricul nu se sterge
+    @OneToMany(mappedBy = "angajat", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     private List<SalariuIstoric> salarii = new ArrayList<>();
 
     protected Angajat() {
@@ -156,6 +163,16 @@ public class Angajat extends Utilizator {
         this.idTipAngajat = idTipAngajat;
         this.functie = functie;
         this.programLucru = programLucru;
+    }
+
+    @Override
+    public Object idAudit() {
+        return getIdUtilizator();
+    }
+
+    @Override
+    public String detaliiAudit() {
+        return functie + ", tip " + idTipAngajat + ", salariu " + salariu;
     }
 
     public Integer getIdTipAngajat() {

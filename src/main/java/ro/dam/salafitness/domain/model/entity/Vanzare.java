@@ -4,6 +4,12 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.EntityListeners;
+import ro.dam.salafitness.domain.model.listener.AuditEntitateListener;
+import ro.dam.salafitness.domain.model.listener.Auditabil;
+import ro.dam.salafitness.domain.model.listener.CampuriCalculateListener;
+import ro.dam.salafitness.domain.model.listener.CuCampuriCalculate;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,7 +34,8 @@ import java.util.Optional;
  */
 @Entity
 @Table(name = "vanzari")
-public class Vanzare {
+@EntityListeners({CampuriCalculateListener.class, AuditEntitateListener.class})
+public class Vanzare implements CuCampuriCalculate, Auditabil {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,7 +62,8 @@ public class Vanzare {
     @AttributeOverride(name = "valoare", column = @Column(name = "total_plata", nullable = false, precision = 10, scale = 2))
     private Bani totalPlata = Bani.ZERO;
 
-    @OneToMany(mappedBy = "vanzare", cascade = CascadeType.ALL, orphanRemoval = true)
+    // RB02: liniile se sterg odata cu vanzarea
+    @OneToMany(mappedBy = "vanzare", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<LinieVanzare> linii = new ArrayList<>();
 
     protected Vanzare() {
@@ -143,6 +151,28 @@ public class Vanzare {
 
     public List<LinieVanzare> getLinii() {
         return Collections.unmodifiableList(linii);
+    }
+
+    // RC02
+    @Override
+    public void recalculeazaCampuriCalculate() {
+        calculeazaTotal();
+    }
+
+    // totalul depinde de liniile vanzarii
+    @Override
+    public String colectieNecesara() {
+        return "linii";
+    }
+
+    @Override
+    public Object idAudit() {
+        return idVanzare;
+    }
+
+    @Override
+    public String detaliiAudit() {
+        return "client " + idClient + ", angajat " + idAngajat + ", total " + totalPlata;
     }
 
     @Override

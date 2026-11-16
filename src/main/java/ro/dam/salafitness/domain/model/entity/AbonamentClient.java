@@ -5,6 +5,9 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.EntityListeners;
+import ro.dam.salafitness.domain.model.listener.AuditEntitateListener;
+import ro.dam.salafitness.domain.model.listener.Auditabil;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -12,6 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Convert;
 import ro.dam.salafitness.domain.model.enums.StatusAbonament;
 import ro.dam.salafitness.domain.model.vo.PerioadaValabilitate;
 
@@ -23,7 +27,8 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "abonamente_clienti")
-public class AbonamentClient {
+@EntityListeners(AuditEntitateListener.class)
+public class AbonamentClient implements Auditabil {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,6 +52,7 @@ public class AbonamentClient {
 
     /** RV10 */
     @NotNull
+    @Convert(converter = StatusAbonament.Converter.class)
     @Column(name = "status", nullable = false, length = 20)
     private StatusAbonament status;
 
@@ -92,6 +98,16 @@ public class AbonamentClient {
 
     public StatusAbonament getStatus() {
         return status;
+    }
+
+    @Override
+    public Object idAudit() {
+        return idAbonamentClient;
+    }
+
+    @Override
+    public String detaliiAudit() {
+        return "tip " + idTipAbonament + ", " + perioada + ", " + (status == null ? "" : status.getValoare());
     }
 
     @Override

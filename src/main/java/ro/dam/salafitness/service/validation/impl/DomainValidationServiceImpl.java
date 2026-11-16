@@ -16,8 +16,8 @@ import ro.dam.salafitness.domain.model.enums.StatusSedinta;
 import ro.dam.salafitness.domain.model.vo.Email;
 import ro.dam.salafitness.domain.model.vo.IntervalOrar;
 import ro.dam.salafitness.domain.repository.AngajatRepository;
+import ro.dam.salafitness.domain.repository.ClasaFitnessRepository;
 import ro.dam.salafitness.domain.repository.ClientRepository;
-import ro.dam.salafitness.domain.repository.ProgramClasaRepository;
 import ro.dam.salafitness.domain.repository.SedintaPTRepository;
 import ro.dam.salafitness.domain.repository.TipAbonamentRepository;
 import ro.dam.salafitness.domain.repository.TipAngajatRepository;
@@ -40,14 +40,14 @@ public class DomainValidationServiceImpl implements DomainValidationService {
     private final AngajatRepository angajatRepository;
     private final TipAngajatRepository tipAngajatRepository;
     private final TipAbonamentRepository tipAbonamentRepository;
-    private final ProgramClasaRepository programClasaRepository;
+    private final ClasaFitnessRepository clasaFitnessRepository;
     private final SedintaPTRepository sedintaPTRepository;
 
     public DomainValidationServiceImpl(Validator validator, UtilizatorRepository utilizatorRepository,
                                        ClientRepository clientRepository, AngajatRepository angajatRepository,
                                        TipAngajatRepository tipAngajatRepository,
                                        TipAbonamentRepository tipAbonamentRepository,
-                                       ProgramClasaRepository programClasaRepository,
+                                       ClasaFitnessRepository clasaFitnessRepository,
                                        SedintaPTRepository sedintaPTRepository) {
         this.validator = validator;
         this.utilizatorRepository = utilizatorRepository;
@@ -55,7 +55,7 @@ public class DomainValidationServiceImpl implements DomainValidationService {
         this.angajatRepository = angajatRepository;
         this.tipAngajatRepository = tipAngajatRepository;
         this.tipAbonamentRepository = tipAbonamentRepository;
-        this.programClasaRepository = programClasaRepository;
+        this.clasaFitnessRepository = clasaFitnessRepository;
         this.sedintaPTRepository = sedintaPTRepository;
     }
 
@@ -140,7 +140,7 @@ public class DomainValidationServiceImpl implements DomainValidationService {
 
     @Override
     public void verificaSalaLibera(String salaStudio, IntervalOrar interval, Long idProgramExclus) {
-        programClasaRepository.findSuprapuse(salaStudio, interval.getInceput(), interval.getSfarsit()).stream()
+        clasaFitnessRepository.findSesiuniSuprapuse(salaStudio, interval.getInceput(), interval.getSfarsit()).stream()
                 .filter(p -> !p.getIdProgram().equals(idProgramExclus))
                 .findAny()
                 .ifPresent((ProgramClasa p) -> {

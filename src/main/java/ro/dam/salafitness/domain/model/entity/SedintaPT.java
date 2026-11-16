@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Convert;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import ro.dam.salafitness.domain.exception.BusinessRuleException;
@@ -44,6 +45,7 @@ public class SedintaPT {
 
     /** RV17 */
     @NotNull
+    @Convert(converter = StatusSedinta.Converter.class)
     @Column(name = "status", nullable = false, length = 20)
     private StatusSedinta status = StatusSedinta.PROGRAMAT;
 
